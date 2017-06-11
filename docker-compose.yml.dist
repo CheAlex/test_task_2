@@ -1,0 +1,52 @@
+version: '2'
+
+services:
+    mysql:
+        image: mysql:5.7.17
+        ports:
+            - "4406:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE:      phalcon
+#            MYSQL_USER:          phalcon
+#            MYSQL_PASSWORD:      phalcon
+        volumes:
+            - ./database:/var/lib/mysql
+            - ./application:/var/www/app
+
+    memcached:
+        image: memcached:1.4.37-alpine
+        ports:
+            - "11211:11211"
+#            - "127.0.0.1:11211:11211"
+        mem_limit: 128m
+        command: memcached -m 128m
+
+    php_fpm:
+        build:
+            context: ./docker/php_fpm
+        volumes:
+            - ./application:/var/www/app
+        tty: true
+        working_dir: /var/www/app
+        depends_on:
+            - mysql
+        links:
+            - "mysql:database_host"
+            - "memcached:memcached_host"
+
+    nginx:
+        build:
+            context: ./docker/nginx
+        ports:
+            - "8080:80"
+        environment:
+            TERM: xterm
+        volumes:
+            - ./application:/var/www/app
+            - ./docker/nginx/configs/phalcon.conf:/etc/nginx/conf.d/phalcon.conf
+            - ./logs/nginx/:/var/log/nginx
+        depends_on:
+            - php_fpm
+        links:
+            - "php_fpm:php_fpm_host"
