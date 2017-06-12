@@ -2,6 +2,8 @@
 
 use Che\BlogModule\Service\ContentProvider\CachedContentProvider;
 use Che\BlogModule\Service\ContentProvider\JsonRpcContentProvider;
+use Che\ContentModule\Dao\PageDao;
+use Che\ContentModule\Service\JsonRpcPageService;
 use JsonRPC\Client;
 use Phalcon\Config as PhConfig;
 use Phalcon\Di as PhDI;
@@ -14,6 +16,7 @@ use Phalcon\Mvc\Micro\Collection as PhMicroCollection;
 use Phalcon\Registry as PhRegistry;
 use Phalcon\Cache\Frontend\Data as FrontData;
 use Phalcon\Cache\Backend\Memcache as BackMemCached;
+use Phalcon\Db\Adapter\Pdo\Mysql as PdoMysql;
 
 use Che\BlogModule\Exception;
 
@@ -241,73 +244,43 @@ class AppKernel
     protected function initServices()
     {
         $this->diContainer->setShared(
-            'che_blog.content_provider.json_rpc',
-            [
-                'className' => JsonRpcContentProvider::class,
-                'arguments' => [
+            'db',
+            function () {
+                return new PdoMysql(
                     [
-                        'type' => 'service',
-                        'name' => 'che_blog.json_rpc.client',
+                        'host'     => '172.28.1.1',
+                        'username' => 'root',
+                        'password' => 'root',
+                        'dbname'   => 'phalcon',
+                    ]
+                );
+            }
+        );
+
+        $this->diContainer->setShared(
+            'che_content.dao.page',
+            [
+                "className" => PageDao::class,
+                "arguments" => [
+                    [
+                        "type" => "service",
+                        "name" => "modelsManager",
                     ],
                 ]
             ]
         );
 
         $this->diContainer->setShared(
-            'che_blog.cache.content',
-            function () {
-                $frontCache = new FrontData(
-                    [
-                        'lifetime' => 0,
-                    ]
-                );
-
-                $cache = new BackMemCached(
-                    $frontCache,
-                    [
-                        'host'     => '172.28.1.2',
-                        'port'     => '11211',
-                        'weight'   => '1',
-                        'statsKey' => '_PHCM',
-                    ]
-                );
-
-                return $cache;
-            }
-        );
-
-        $this->diContainer->setShared(
-            'che_blog.content_provider.cached',
+            'che_content.service.json_rpc_page_service',
             [
-                'className' => CachedContentProvider::class,
-                'arguments' => [
+                "className" => JsonRpcPageService::class,
+                "arguments" => [
                     [
-                        'type' => 'service',
-                        'name' => 'che_blog.content_provider.json_rpc',
-                    ],
-                    [
-                        'type' => 'service',
-                        'name' => 'che_blog.cache.content',
+                        "type" => "service",
+                        "name" => "che_content.dao.page",
                     ],
                 ]
             ]
-        );
-
-        $this->diContainer->setShared(
-            'che_blog.content_provider',
-            function () {
-                return $this->get('che_blog.content_provider.cached');
-            }
-        );
-
-        $this->diContainer->setShared(
-            'che_blog.json_rpc.client',
-            function () {
-                $client = new Client('http://content.dev:80/api/v1/content');
-                $client->getHttpClient()->withDebug();
-
-                return $client;
-            }
         );
     }
 

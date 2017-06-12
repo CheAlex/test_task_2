@@ -1,10 +1,10 @@
 <?php
 
-namespace Store\Toys;
+namespace Che\ContentModule\Entity;
 
 use Phalcon\Mvc\Model;
 
-class Pages extends Model
+class Page extends Model
 {
     /**
      * @var int
@@ -25,9 +25,4 @@ class Pages extends Model
      * @var string
      */
     public $uri;
-
-//    public function getSource()
-//    {
-//        return 'page';
-//    }
 }

@@ -1,30 +1,28 @@
 <?php
 
-namespace Store\Service;
+namespace Che\ContentModule\Service;
 
-use Phalcon\Db\AdapterInterface;
-use Phalcon\Mvc\Model\ManagerInterface;
-use Store\Dao\PageDao;
+use Che\ContentModule\Dao\PageDaoInterface;
 
-class PageService
+class JsonRpcPageService
 {
     /**
-     * @var PageDao
+     * @var PageDaoInterface
      */
     protected $pageDao;
 
     /**
-     * PageService constructor.
-     * @param PageDao $pageDao
+     * JsonRpcPageService constructor.
+     * @param PageDaoInterface $pageDao
      */
-    public function __construct(PageDao $pageDao)
+    public function __construct(PageDaoInterface $pageDao)
     {
         $this->pageDao = $pageDao;
     }
 
-    public function get(string $host, string $uri)
+    public function getPage(string $host, string $uri)
     {
-        $page = $this->pageDao->get($host, $uri);
+        $page = $this->pageDao->getByHostAndUri($host, $uri);
 
         if (!$page) {
             return [

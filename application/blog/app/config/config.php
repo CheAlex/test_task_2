@@ -8,7 +8,7 @@ return [
     ],
     'routes' => [
         [
-            'class'   => BlogModule\Controller\IndexController::class,
+            'class'   => Che\BlogModule\Controller\IndexController::class,
             'methods' => [
                 'get' => [
                     '/{id:.+}' => 'indexAction',
@@ -16,7 +16,7 @@ return [
             ],
         ],
         [
-            'class'   => BlogModule\Controller\CacheController::class,
+            'class'   => Che\BlogModule\Controller\CacheController::class,
             'methods' => [
                 'get' => [
                     '/cache/clear' => 'clearAction',

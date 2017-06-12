@@ -1,6 +1,6 @@
 <?php
 
-namespace BlogModule;
+namespace Che\BlogModule;
 
 /**
  * Class Exception

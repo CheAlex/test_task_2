@@ -1,6 +1,6 @@
 <?php
 
-namespace BlogModule\Service\ContentProvider;
+namespace Che\BlogModule\Service\ContentProvider;
 
 use JsonRPC\Client;
 
@@ -30,14 +30,7 @@ class JsonRpcContentProvider implements ContentProviderInterface
      */
     public function get(string $host, string $uri): ContentInterface
     {
-        $data = $this->client->execute('content/get', [
-            'host' => $host,
-            'uri' => $uri,
-        ]);
-
-        if (!$data || !isset($data['html'])) {
-            throw new \Exception('Wrong content data');
-        }
+        $data = $this->client->execute('getPage', [$host, $uri]);
 
         $response = new Content($data['code'], $data['html'], $data['error']);
 

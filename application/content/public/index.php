@@ -13,6 +13,5 @@ try {
 
     (new AppKernel())->run();
 } catch (\Exception $e) {
-    throw $e;
-//    echo $e->getMessage() . PHP_EOL . $e->getTraceAsString();
+    echo $e->getMessage() . PHP_EOL . $e->getTraceAsString();
 }

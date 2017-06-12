@@ -1,6 +1,6 @@
 <?php
 
-namespace BlogModule\Service\ContentProvider;
+namespace Che\BlogModule\Service\ContentProvider;
 
 use Phalcon\Cache\BackendInterface;
 
