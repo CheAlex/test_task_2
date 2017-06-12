@@ -1,0 +1,18 @@
+{
+    "autoload": {
+        "psr-4": {
+            "BlogModule\\": "src/BlogModule/"
+        },
+        "classmap": [
+            "app/AppKernel.php"
+        ]
+    },
+    "require": {
+        "php": ">=7.1.0",
+        "ext-phalcon": ">=3.1.0",
+        "fguillot/json-rpc": "^1.2"
+    },
+    "scripts": {
+        "post-autoload-dump": "./bin/autoload_converter"
+    }
+}

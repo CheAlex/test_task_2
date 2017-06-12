@@ -1,0 +1,68 @@
+version: '2'
+
+services:
+    mysql:
+        image: mysql:5.7.17
+        ports:
+            - "4406:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE:      phalcon
+#            MYSQL_USER:          phalcon
+#            MYSQL_PASSWORD:      phalcon
+        volumes:
+            - ./database:/var/lib/mysql
+            - ./application:/var/www/app
+        networks:
+            testing_net:
+                ipv4_address: 172.28.1.1
+
+    memcached:
+        image: memcached:1.4.37-alpine
+        ports:
+            - "11211:11211"
+        mem_limit: 128m
+        command: memcached -m 128m
+        networks:
+            testing_net:
+                ipv4_address: 172.28.1.2
+
+    php_fpm:
+        build:
+            context: ./docker/php_fpm
+        volumes:
+            - ./application:/var/www/app
+        tty: true
+        working_dir: /var/www/app
+        depends_on:
+            - mysql
+            - memcached
+        networks:
+            testing_net:
+                ipv4_address: 172.28.1.3
+
+    nginx:
+        build:
+            context: ./docker/nginx
+        ports:
+            - "8080:80"
+        environment:
+            TERM: xterm
+        volumes:
+            - ./application:/var/www/app
+            - ./docker/nginx/configs/phalcon.conf:/etc/nginx/conf.d/phalcon.conf
+            - ./logs/nginx/:/var/log/nginx
+        depends_on:
+            - php_fpm
+        networks:
+            testing_net:
+                ipv4_address: 172.28.1.4
+                aliases:
+                    - "content.dev"
+
+networks:
+    testing_net:
+        ipam:
+            driver: default
+            config:
+                - subnet: 172.28.0.0/16
