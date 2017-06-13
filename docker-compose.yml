@@ -2,6 +2,7 @@ version: '2'
 
 services:
     mysql:
+        container_name: che.mysql_1
         image: mysql:5.7.17
         ports:
             - "4406:3306"
@@ -18,6 +19,7 @@ services:
                 ipv4_address: 172.28.1.1
 
     memcached:
+        container_name: che.memcached_1
         image: memcached:1.4.37-alpine
         ports:
             - "11211:11211"
@@ -28,6 +30,7 @@ services:
                 ipv4_address: 172.28.1.2
 
     php_fpm:
+        container_name: che.php_fpm_1
         build:
             context: ./docker/php_fpm
         volumes:
@@ -42,6 +45,7 @@ services:
                 ipv4_address: 172.28.1.3
 
     nginx:
+        container_name: che.nginx_1
         build:
             context: ./docker/nginx
         ports:

@@ -21,4 +21,10 @@ return [
             ],
         ],
     ],
+    'middleware'    => [
+        [
+            'event' => 'before',
+            'class' => Che\ContentModule\Middleware\NotFoundMiddleware::class,
+        ],
+    ],
 ];

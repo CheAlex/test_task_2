@@ -194,6 +194,7 @@ class AppKernel
         /** @var PhConfig $config */
         $config     = $this->diContainer->getShared('config');
         $routes     = $config->get('routes')->toArray();
+        $middleware = $config->get('middleware')->toArray();
 
         foreach ($routes as $route) {
             $collection = new PhMicroCollection();
@@ -211,6 +212,13 @@ class AppKernel
         }
 
         $eventsManager = $this->diContainer->getShared('eventsManager');
+
+        foreach ($middleware as $element) {
+            $class = $element['class'];
+            $event = $element['event'];
+            $eventsManager->attach('micro', new $class());
+            $this->application->$event(new $class());
+        }
 
         $this->application->setEventsManager($eventsManager);
     }

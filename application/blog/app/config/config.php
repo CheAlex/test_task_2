@@ -37,4 +37,10 @@ return [
             ],
         ],
     ],
+    'middleware'    => [
+        [
+            'event' => 'before',
+            'class' => Che\BlogModule\Middleware\NotFoundMiddleware::class,
+        ],
+    ],
 ];
