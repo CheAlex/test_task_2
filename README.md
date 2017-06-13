@@ -11,7 +11,7 @@
 1. Install **[docker](https://docs.docker.com/engine/installation/linux/ubuntu/)**, **[docker-compose](https://docs.docker.com/compose/install/)**
 2. Run:
 ```sh
-docker-compose up
+docker-compose up -d
 ```
 6. Run:
 ```sh
