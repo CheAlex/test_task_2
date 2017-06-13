@@ -4,15 +4,23 @@ namespace Che\ContentModule\Service;
 
 use Che\ContentModule\Dao\PageDaoInterface;
 
+/**
+ * Class JsonRpcPageService.
+ *
+ * @package Che\ContentModule\Service
+ */
 class JsonRpcPageService
 {
     /**
+     * Page dao.
+     *
      * @var PageDaoInterface
      */
     protected $pageDao;
 
     /**
      * JsonRpcPageService constructor.
+     *
      * @param PageDaoInterface $pageDao
      */
     public function __construct(PageDaoInterface $pageDao)
@@ -20,7 +28,14 @@ class JsonRpcPageService
         $this->pageDao = $pageDao;
     }
 
-    public function getPage(string $host, string $uri)
+    /**
+     * Get page data by host and uri.
+     *
+     * @param string $host
+     * @param string $uri
+     * @return array
+     */
+    public function getByHostAndUri(string $host, string $uri): array
     {
         $page = $this->pageDao->getByHostAndUri($host, $uri);
 
@@ -34,7 +49,7 @@ class JsonRpcPageService
 
         return [
             'code'  => 200,
-            'html'  => $page->content,
+            'html'  => $page->html,
             'error' => null,
         ];
     }

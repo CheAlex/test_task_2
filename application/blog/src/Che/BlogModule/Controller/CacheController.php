@@ -2,11 +2,16 @@
 
 namespace Che\BlogModule\Controller;
 
-use Che\BlogModule\Service\ContentProvider\CachedContentProvider;
+use Che\BlogModule\Service\CacheService;
 use Phalcon\Http\Response;
 use Phalcon\Http\ResponseInterface;
 use Phalcon\Mvc\Controller as PhController;
 
+/**
+ * Class CacheController
+ *
+ * @package Che\BlogModule\Controller
+ */
 class CacheController extends PhController
 {
     /**
@@ -16,9 +21,9 @@ class CacheController extends PhController
     {
         $host = $this->request->getServerName();
 
-        /** @var CachedContentProvider $contentProvider */
-        $contentProvider = $this->di->get('che_blog.content_provider.cached');
-        $contentProvider->clearHostData($host);
+        /** @var CacheService $cacheService */
+        $cacheService = $this->di->get('che_blog.service.cache_service');
+        $cacheService->clearCacheByHost($host);
 
         return new Response('OK', 200);
     }

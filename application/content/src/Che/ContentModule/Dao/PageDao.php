@@ -2,18 +2,27 @@
 
 namespace Che\ContentModule\Dao;
 
-use Phalcon\Mvc\Model\ManagerInterface;
 use Che\ContentModule\Entity\Page;
+use Phalcon\Mvc\Model\ManagerInterface;
+use Phalcon\Mvc\Model\ResultsetInterface;
 
+/**
+ * Class PageDao.
+ *
+ * @package Che\ContentModule\Dao
+ */
 class PageDao implements PageDaoInterface
 {
     /**
+     * Models manager.
+     *
      * @var ManagerInterface
      */
     protected $modelsManager;
 
     /**
-     * PageService constructor.
+     * PageDao constructor.
+     *
      * @param ManagerInterface $modelsManager
      */
     public function __construct(ManagerInterface $modelsManager)
@@ -31,7 +40,7 @@ class PageDao implements PageDaoInterface
             Page::class
         );
 
-        /** @var \Phalcon\Mvc\Model\ResultsetInterface $resultSet */
+        /** @var ResultsetInterface $resultSet */
         $resultSet = $this->modelsManager->executeQuery(
             $phql,
             [

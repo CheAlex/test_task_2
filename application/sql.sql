@@ -10,7 +10,7 @@ CREATE TABLE `pages` (
 );
 
 USE `phalcon`;
-INSERT INTO `pages` (`content`, `host`, `uri`)
+INSERT INTO `pages` (`html`, `host`, `uri`)
 VALUES ('content_blog1_page_1', 'blog1.dev', 'page_1'),
        ('content_blog1_page_2', 'blog1.dev', 'page_2'),
        ('content_blog2_page_1', 'blog2.dev', 'page_1'),

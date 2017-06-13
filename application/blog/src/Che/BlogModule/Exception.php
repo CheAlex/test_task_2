@@ -3,7 +3,8 @@
 namespace Che\BlogModule;
 
 /**
- * Class Exception
+ * Class Exception.
+ *
  * @package BlogModule
  */
 class Exception extends \Exception

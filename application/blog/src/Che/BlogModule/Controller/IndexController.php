@@ -2,13 +2,17 @@
 
 namespace Che\BlogModule\Controller;
 
-use Che\BlogModule\Service\ContentProvider\Content;
-use Che\BlogModule\Service\ContentProvider\ContentInterface;
-use Che\BlogModule\Service\ContentProvider\ContentProviderInterface;
+use Che\BlogModule\Dao\PageDaoInterface;
+use Che\BlogModule\Model\PageInterface;
 use Phalcon\Http\Response;
 use Phalcon\Http\ResponseInterface;
 use Phalcon\Mvc\Controller as PhController;
 
+/**
+ * Class IndexController
+ *
+ * @package Che\BlogModule\Controller
+ */
 class IndexController extends PhController
 {
     /**
@@ -20,14 +24,14 @@ class IndexController extends PhController
         $uri  = substr($this->request->getURI(), 1);
         $host = $this->request->getServerName();
 
-        /** @var ContentProviderInterface $contentProvider */
-        $contentProvider = $this->getDI()->get('che_blog.content_provider');
-        $content = $contentProvider->get($host, $uri);
+        /** @var PageDaoInterface $contentDao */
+        $contentDao = $this->getDI()->get('che_blog.content_provider');
+        $content = $contentDao->getByHostAndUri($host, $uri);
 
-        if (ContentInterface::CODE_OK !== $content->getCode()) {
+        if (PageInterface::CODE_OK !== $content->getCode()) {
             return new Response($content->getError(), $content->getCode());
         }
 
-        return new Response($content->getContent(), $content->getCode());
+        return new Response($content->getHtml(), $content->getCode());
     }
 }

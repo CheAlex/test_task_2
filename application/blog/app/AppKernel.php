@@ -1,8 +1,12 @@
 <?php
 
-use Che\BlogModule\Service\ContentProvider\CachedContentProvider;
-use Che\BlogModule\Service\ContentProvider\JsonRpcContentProvider;
+use Che\BlogModule\Dao\CachedPageDao;
+use Che\BlogModule\Dao\JsonRpcPageDao;
+use Che\BlogModule\Exception;
+use Che\BlogModule\Service\CacheService;
 use JsonRPC\Client;
+use Phalcon\Cache\Backend\Memcache as BackMemCached;
+use Phalcon\Cache\Frontend\Data as FrontData;
 use Phalcon\Config as PhConfig;
 use Phalcon\Di as PhDI;
 use Phalcon\Di\FactoryDefault as PhFactoryDefault;
@@ -12,32 +16,25 @@ use Phalcon\Mvc\Application as PhApplication;
 use Phalcon\Mvc\Micro as PhMicro;
 use Phalcon\Mvc\Micro\Collection as PhMicroCollection;
 use Phalcon\Registry as PhRegistry;
-use Phalcon\Cache\Frontend\Data as FrontData;
-use Phalcon\Cache\Backend\Memcache as BackMemCached;
-
-use Che\BlogModule\Exception;
 
 /**
- * AbstractBootstrap
- *
- * @property PhDI $diContainer
+ * Class AppKernel
  */
 class AppKernel
 {
     /**
+     * Application.
+     *
      * @var PhMicro
      */
-    protected $application = null;
+    protected $application;
 
     /**
+     * Di container.
+     *
      * @var PhDI
      */
-    protected $diContainer = null;
-
-    /**
-     * @var array
-     */
-    protected $options = [];
+    protected $diContainer;
 
     /**
      * Runs the application
@@ -47,7 +44,6 @@ class AppKernel
     public function run()
     {
         $this->initDi();
-//        $this->initLoader();
         $this->initRegistry();
         $this->initApplication();
         $this->initConfig();
@@ -91,7 +87,6 @@ class AppKernel
     protected function initDi()
     {
         $this->diContainer = new PhFactoryDefault();
-//        PhDI::setDefault($this->diContainer);
     }
 
     /**
@@ -128,7 +123,7 @@ class AppKernel
 
         set_exception_handler(
             function () use ($logger) {
-               echo json_encode(debug_backtrace());
+                echo json_encode(debug_backtrace());
                 $logger->error(json_encode(debug_backtrace()));
             }
         );
@@ -150,17 +145,6 @@ class AppKernel
             }
         );
     }
-
-//    /**
-//     * Initializes the autoloader
-//     */
-//    protected function initLoader()
-//    {
-//        /**
-//         * Use the composer autoloader
-//         */
-//        require_once APP_PATH . '/vendor/autoload.php';
-//    }
 
     /**
      * Initializes the loggers
@@ -196,11 +180,8 @@ class AppKernel
          * Fill the registry with elements we will need
          */
         $registry = new PhRegistry();
-        $registry->contributors  = [];
         $registry->executionTime = 0;
-        $registry->language      = 'en';
         $registry->memory        = 0;
-        $registry->noindex       = false;
         $registry->mode          = 'development';
 
         $this->diContainer->setShared('registry', $registry);
@@ -212,8 +193,8 @@ class AppKernel
     protected function initRoutes()
     {
         /** @var PhConfig $config */
-        $config     = $this->diContainer->getShared('config');
-        $routes     = $config->get('routes')->toArray();
+        $config = $this->diContainer->getShared('config');
+        $routes = $config->get('routes')->toArray();
 
         foreach ($routes as $route) {
             $collection = new PhMicroCollection();
@@ -236,14 +217,14 @@ class AppKernel
     }
 
     /**
-     * Initializes the routes
+     * Initializes the services
      */
     protected function initServices()
     {
         $this->diContainer->setShared(
             'che_blog.content_provider.json_rpc',
             [
-                'className' => JsonRpcContentProvider::class,
+                'className' => JsonRpcPageDao::class,
                 'arguments' => [
                     [
                         'type' => 'service',
@@ -256,20 +237,14 @@ class AppKernel
         $this->diContainer->setShared(
             'che_blog.cache.content',
             function () {
-                $frontCache = new FrontData(
-                    [
-                        'lifetime' => 0,
-                    ]
-                );
+                /** @var PhConfig $config */
+                $config = $this->get('config');
+
+                $frontCache = new FrontData($config->memcached->front->toArray());
 
                 $cache = new BackMemCached(
                     $frontCache,
-                    [
-                        'host'     => '172.28.1.2',
-                        'port'     => '11211',
-                        'weight'   => '1',
-                        'statsKey' => '_PHCM',
-                    ]
+                    $config->memcached->back->toArray()
                 );
 
                 return $cache;
@@ -279,7 +254,7 @@ class AppKernel
         $this->diContainer->setShared(
             'che_blog.content_provider.cached',
             [
-                'className' => CachedContentProvider::class,
+                'className' => CachedPageDao::class,
                 'arguments' => [
                     [
                         'type' => 'service',
@@ -303,11 +278,27 @@ class AppKernel
         $this->diContainer->setShared(
             'che_blog.json_rpc.client',
             function () {
-                $client = new Client('http://content.dev:80/api/v1/content');
-                $client->getHttpClient()->withDebug();
+                /** @var PhConfig $config */
+                $config = $this->get('config');
+                $serverUrl = $config['content']['json_rpc_server'];
+
+                $client = new Client($serverUrl);
 
                 return $client;
             }
+        );
+
+        $this->diContainer->setShared(
+            'che_blog.service.cache_service',
+            [
+                'className' => CacheService::class,
+                'arguments' => [
+                    [
+                        'type' => 'service',
+                        'name' => 'che_blog.cache.content',
+                    ],
+                ]
+            ]
         );
     }
 

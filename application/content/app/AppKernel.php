@@ -1,11 +1,10 @@
 <?php
 
-use Che\BlogModule\Service\ContentProvider\CachedContentProvider;
-use Che\BlogModule\Service\ContentProvider\JsonRpcContentProvider;
+use Che\BlogModule\Exception;
 use Che\ContentModule\Dao\PageDao;
 use Che\ContentModule\Service\JsonRpcPageService;
-use JsonRPC\Client;
 use Phalcon\Config as PhConfig;
+use Phalcon\Db\Adapter\Pdo\Mysql as PdoMysql;
 use Phalcon\Di as PhDI;
 use Phalcon\Di\FactoryDefault as PhFactoryDefault;
 use Phalcon\Logger\Adapter\File as PhFileLogger;
@@ -14,11 +13,6 @@ use Phalcon\Mvc\Application as PhApplication;
 use Phalcon\Mvc\Micro as PhMicro;
 use Phalcon\Mvc\Micro\Collection as PhMicroCollection;
 use Phalcon\Registry as PhRegistry;
-use Phalcon\Cache\Frontend\Data as FrontData;
-use Phalcon\Cache\Backend\Memcache as BackMemCached;
-use Phalcon\Db\Adapter\Pdo\Mysql as PdoMysql;
-
-use Che\BlogModule\Exception;
 
 /**
  * AbstractBootstrap
@@ -28,19 +22,18 @@ use Che\BlogModule\Exception;
 class AppKernel
 {
     /**
+     * Application.
+     *
      * @var PhMicro
      */
-    protected $application = null;
+    protected $application;
 
     /**
+     * Di container.
+     *
      * @var PhDI
      */
-    protected $diContainer = null;
-
-    /**
-     * @var array
-     */
-    protected $options = [];
+    protected $diContainer;
 
     /**
      * Runs the application
@@ -50,7 +43,6 @@ class AppKernel
     public function run()
     {
         $this->initDi();
-//        $this->initLoader();
         $this->initRegistry();
         $this->initApplication();
         $this->initConfig();
@@ -94,7 +86,6 @@ class AppKernel
     protected function initDi()
     {
         $this->diContainer = new PhFactoryDefault();
-//        PhDI::setDefault($this->diContainer);
     }
 
     /**
@@ -154,17 +145,6 @@ class AppKernel
         );
     }
 
-//    /**
-//     * Initializes the autoloader
-//     */
-//    protected function initLoader()
-//    {
-//        /**
-//         * Use the composer autoloader
-//         */
-//        require_once APP_PATH . '/vendor/autoload.php';
-//    }
-
     /**
      * Initializes the loggers
      */
@@ -199,11 +179,8 @@ class AppKernel
          * Fill the registry with elements we will need
          */
         $registry = new PhRegistry();
-        $registry->contributors  = [];
         $registry->executionTime = 0;
-        $registry->language      = 'en';
         $registry->memory        = 0;
-        $registry->noindex       = false;
         $registry->mode          = 'development';
 
         $this->diContainer->setShared('registry', $registry);
@@ -239,32 +216,28 @@ class AppKernel
     }
 
     /**
-     * Initializes the routes
+     * Initializes the services.
      */
     protected function initServices()
     {
         $this->diContainer->setShared(
             'db',
             function () {
-                return new PdoMysql(
-                    [
-                        'host'     => '172.28.1.1',
-                        'username' => 'root',
-                        'password' => 'root',
-                        'dbname'   => 'phalcon',
-                    ]
-                );
+                /** @var PhConfig $config */
+                $config = $this->get('config');
+
+                return new PdoMysql($config->db->toArray());
             }
         );
 
         $this->diContainer->setShared(
-            'che_content.dao.page',
+            'che_content.dao.page_dao',
             [
-                "className" => PageDao::class,
-                "arguments" => [
+                'className' => PageDao::class,
+                'arguments' => [
                     [
-                        "type" => "service",
-                        "name" => "modelsManager",
+                        'type' => 'service',
+                        'name' => 'modelsManager',
                     ],
                 ]
             ]
@@ -273,11 +246,11 @@ class AppKernel
         $this->diContainer->setShared(
             'che_content.service.json_rpc_page_service',
             [
-                "className" => JsonRpcPageService::class,
-                "arguments" => [
+                'className' => JsonRpcPageService::class,
+                'arguments' => [
                     [
-                        "type" => "service",
-                        "name" => "che_content.dao.page",
+                        'type' => 'service',
+                        'name' => 'che_content.dao.page_dao',
                     ],
                 ]
             ]
