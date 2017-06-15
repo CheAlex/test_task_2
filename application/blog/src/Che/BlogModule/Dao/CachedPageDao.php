@@ -17,7 +17,7 @@ class CachedPageDao implements PageDaoInterface
      *
      * @var PageDaoInterface
      */
-    protected $contentDao;
+    protected $pageDao;
 
     /**
      * Cache backend.
@@ -29,12 +29,12 @@ class CachedPageDao implements PageDaoInterface
     /**
      * CachedPageDao constructor.
      *
-     * @param PageDaoInterface $contentDao
+     * @param PageDaoInterface $pageDao
      * @param BackendInterface $cache
      */
-    public function __construct(PageDaoInterface $contentDao, BackendInterface $cache)
+    public function __construct(PageDaoInterface $pageDao, BackendInterface $cache)
     {
-        $this->contentDao = $contentDao;
+        $this->pageDao = $pageDao;
         $this->cache = $cache;
     }
 
@@ -45,14 +45,14 @@ class CachedPageDao implements PageDaoInterface
     {
         $cacheKey = $host . '_' .  $uri;
 
-        $content = $this->cache->get($cacheKey);
+        $page = $this->cache->get($cacheKey);
 
-        if ($content === null) {
-            $content = $this->contentDao->getByHostAndUri($host, $uri);
+        if ($page === null) {
+            $page = $this->pageDao->getByHostAndUri($host, $uri);
 
-            $this->cache->save($cacheKey, $content);
+            $this->cache->save($cacheKey, $page);
         }
 
-        return $content;
+        return $page;
     }
 }

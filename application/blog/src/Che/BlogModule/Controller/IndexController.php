@@ -24,14 +24,14 @@ class IndexController extends PhController
         $uri  = substr($this->request->getURI(), 1);
         $host = $this->request->getServerName();
 
-        /** @var PageDaoInterface $contentDao */
-        $contentDao = $this->getDI()->get('che_blog.content_provider');
-        $content = $contentDao->getByHostAndUri($host, $uri);
+        /** @var PageDaoInterface $pageDao */
+        $pageDao = $this->getDI()->get('che_blog.dao.page_dao');
+        $page = $pageDao->getByHostAndUri($host, $uri);
 
-        if (PageInterface::CODE_OK !== $content->getCode()) {
-            return new Response($content->getError(), $content->getCode());
+        if (PageInterface::CODE_OK !== $page->getCode()) {
+            return new Response($page->getError(), $page->getCode());
         }
 
-        return new Response($content->getHtml(), $content->getCode());
+        return new Response($page->getHtml(), $page->getCode());
     }
 }

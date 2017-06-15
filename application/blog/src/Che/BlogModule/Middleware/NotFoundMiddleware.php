@@ -9,7 +9,7 @@ use Phalcon\Mvc\Micro\MiddlewareInterface;
 /**
  * Class NotFoundMiddleware.
  *
- * @package Che\ContentModule\Middleware
+ * @package Che\BlogModule\Middleware
  */
 class NotFoundMiddleware extends Plugin implements MiddlewareInterface
 {

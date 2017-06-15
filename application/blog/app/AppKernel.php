@@ -230,7 +230,7 @@ class AppKernel
     protected function initServices()
     {
         $this->diContainer->setShared(
-            'che_blog.content_provider.json_rpc',
+            'che_blog.dao.json_rpc_page_dao',
             [
                 'className' => JsonRpcPageDao::class,
                 'arguments' => [
@@ -243,7 +243,7 @@ class AppKernel
         );
 
         $this->diContainer->setShared(
-            'che_blog.cache.content',
+            'che_blog.cache.page',
             function () {
                 /** @var PhConfig $config */
                 $config = $this->get('config');
@@ -260,26 +260,26 @@ class AppKernel
         );
 
         $this->diContainer->setShared(
-            'che_blog.content_provider.cached',
+            'che_blog.dao.cached_page_dao',
             [
                 'className' => CachedPageDao::class,
                 'arguments' => [
                     [
                         'type' => 'service',
-                        'name' => 'che_blog.content_provider.json_rpc',
+                        'name' => 'che_blog.dao.json_rpc_page_dao',
                     ],
                     [
                         'type' => 'service',
-                        'name' => 'che_blog.cache.content',
+                        'name' => 'che_blog.cache.page',
                     ],
                 ]
             ]
         );
 
         $this->diContainer->setShared(
-            'che_blog.content_provider',
+            'che_blog.dao.page_dao',
             function () {
-                return $this->get('che_blog.content_provider.cached');
+                return $this->get('che_blog.dao.cached_page_dao');
             }
         );
 
@@ -303,7 +303,7 @@ class AppKernel
                 'arguments' => [
                     [
                         'type' => 'service',
-                        'name' => 'che_blog.cache.content',
+                        'name' => 'che_blog.cache.page',
                     ],
                 ]
             ]
