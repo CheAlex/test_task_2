@@ -49,7 +49,7 @@ class JsonRpcPageService
 
         return [
             'code'  => 200,
-            'html'  => $page->html,
+            'html'  => $page->getHtml(),
             'error' => null,
         ];
     }
