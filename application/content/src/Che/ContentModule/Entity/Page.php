@@ -16,26 +16,58 @@ class Page extends Model
      *
      * @var int
      */
-    public $id;
+    protected $id;
 
     /**
      * Page html.
      *
      * @var string
      */
-    public $html;
+    protected $html;
 
     /**
      * Host.
      *
      * @var string
      */
-    public $host;
+    protected $host;
 
     /**
      * Uri.
      *
      * @var string
      */
-    public $uri;
+    protected $uri;
+
+    /**
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHtml(): string
+    {
+        return $this->html;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHost(): string
+    {
+        return $this->host;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUri(): string
+    {
+        return $this->uri;
+    }
 }
