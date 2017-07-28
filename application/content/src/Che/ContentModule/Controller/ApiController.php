@@ -7,6 +7,11 @@ use Phalcon\Http\ResponseInterface;
 use Phalcon\Mvc\Controller as PhController;
 use JsonRPC\Server as JsonRpcServer;
 
+/**
+ * Class ApiController
+ *
+ * @package Che\ContentModule\Controller
+ */
 class ApiController extends PhController
 {
     /**
